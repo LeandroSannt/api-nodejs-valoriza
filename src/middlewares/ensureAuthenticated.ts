@@ -1,26 +1,37 @@
-import {Request,Response,NextFunction} from "express"
-import {verify} from "jsonwebtoken"
+import { Request, Response, NextFunction } from "express";
+import { verify } from "jsonwebtoken";
 
-interface IPayload{
-    sub:string
+interface IPayload {
+  sub: string;
 }
 
-export function esnureAuthenticated(request:Request, response:Response,next:NextFunction){
-    const authtoken = request.headers.authorization
+export function ensureAuthenticated(
+  request: Request,
+  response: Response,
+  next: NextFunction
+) {
+  // Receber o token
+  const authToken = request.headers.authorization;
 
-    if(!authtoken) {
-        return response.status(401).end()
-    }
+  // Validar se token está preenchido
+  if (!authToken) {
+    return response.status(401).end();
+  }
 
-    const [,token] = authtoken.split(" ")
-    try{    
-    const {sub} =verify(token,"8f2411c0d20c6a033f662dbb85d9417d") as IPayload
-    request.user_id = sub
-    return next()
+  const [, token] = authToken.split(" ");
 
-      
-    }catch(err){
-        return response.status(401).end()
+  try {
+    // Validar se token é válido
+    const { sub } = verify(
+      token,
+      "4f93ac9d10cb751b8c9c646bc9dbccb9"
+    ) as IPayload;
 
-    }
+    // Recuperar informações do usuário
+    request.user_id = sub;
+
+    return next();
+  } catch (err) {
+    return response.status(401).end();
+  }
 }
